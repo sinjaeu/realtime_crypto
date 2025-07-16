@@ -6,6 +6,7 @@ API url : https://api.binance.com/api/v3/ticker/price
     Docker-compose
     airflow
     Kafka
+    postgres
 
 프로젝트 계획 : 
     1. 사용자가 지정한 코인의 가격을 실시간(1초 예상)으로 가져와서 그래프로 표현

@@ -1,0 +1,245 @@
+# ===============================
+# 환경 변수 및 보안 파일
+# ===============================
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+*.key
+*.pem
+*.crt
+secrets/
+
+# ===============================
+# Airflow 관련 파일들
+# ===============================
+logs/
+airflow.db
+airflow.cfg
+webserver_config.py
+standalone_admin_password.txt
+airflow-webserver.pid
+airflow-scheduler.pid
+
+# ===============================
+# 데이터베이스 관련
+# ===============================
+*.db
+*.sqlite
+*.sqlite3
+postgresql_data/
+mysql_data/
+
+# ===============================
+# Docker 관련
+# ===============================
+docker-compose.override.yml
+.docker/
+volumes/
+
+# ===============================
+# Python 관련
+# ===============================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ===============================
+# 가상환경
+# ===============================
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.conda/
+conda-env/
+
+# ===============================
+# IDE 및 에디터 설정
+# ===============================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp
+
+# ===============================
+# 로그 파일들
+# ===============================
+*.log
+*.log.*
+log/
+logs/
+*.out
+*.err
+
+# ===============================
+# 암호화폐 데이터 파일들
+# ===============================
+data/
+crypto_data/
+*.csv
+*.json
+*.parquet
+*.pkl
+*.pickle
+backups/
+
+# ===============================
+# 임시 파일들
+# ===============================
+tmp/
+temp/
+.tmp/
+.temp/
+*.tmp
+*.temp
+.cache/
+.pytest_cache/
+
+# ===============================
+# 설정 파일들 (민감한 정보 포함)
+# ===============================
+config.json
+config.yaml
+config.yml
+settings.json
+local_settings.py
+production_settings.py
+
+# ===============================
+# API 키 및 인증 정보
+# ===============================
+api_keys.txt
+credentials.json
+auth.json
+tokens.json
+*_api_key*
+*_secret*
+
+# ===============================
+# 백업 파일들
+# ===============================
+*.bak
+*.backup
+*.old
+*.orig
+*.save
+
+# ===============================
+# 압축 파일들
+# ===============================
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# ===============================
+# 모니터링 및 성능 파일들
+# ===============================
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# ===============================
+# Jupyter Notebook
+# ===============================
+.ipynb_checkpoints
+*.ipynb
+
+# ===============================
+# 기타 프로젝트 파일들
+# ===============================
+.project
+.pydevproject
+.settings/
+.classpath
+.factorypath
+.buildpath
+.target
+.sts4-cache
+
+# ===============================
+# 문서화 관련
+# ===============================
+docs/_build/
+site/
+
+# ===============================
+# 테스트 관련
+# ===============================
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# ===============================
+# 특정 파일들
+# ===============================
+# 실제 프로덕션 설정 파일들
+docker-compose.prod.yml
+kubernetes/
+k8s/
+
+# 로컬 개발용 스크립트들
+run_local.sh
+debug.py
+test_*.py
+
+# 대용량 데이터 파일들
+*.parquet
+*.feather
+*.h5
+*.hdf5
+
+# 머신러닝 모델 파일들
+*.model
+*.pkl
+*.joblib
+models/
+
+# 실시간 데이터 캐시
+cache/
+redis_data/
+
+# 로그 분석 결과
+analysis/
+reports/
+charts/
+plots/
