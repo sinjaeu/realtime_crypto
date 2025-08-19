@@ -1,0 +1,25 @@
+# 기본 데이터 처리 라이브러리
+pandas==2.0.3
+numpy==1.24.3
+requests==2.31.0
+
+# 데이터베이스 연결
+sqlalchemy==2.0.19
+psycopg2-binary==2.9.7
+
+# 캐싱 및 메시지 큐
+redis==4.6.0
+
+# Kafka 관련 (실시간 데이터 스트리밍용)
+kafka-python==2.0.2
+confluent-kafka==2.2.0
+
+# Airflow 관련 (이미 Docker 이미지에 포함되어 있지만 참조용)
+apache-airflow==2.8.1
+
+# 유틸리티 및 기타
+python-dotenv==1.0.0
+schedule==1.2.0 
+
+# Kafka 관련
+kafka-python
