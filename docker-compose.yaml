@@ -90,7 +90,7 @@ services:
       start_period: 30s
     restart: always
     ports:
-      - "6379:6379"
+      - "16379:6379"
 
   airflow-webserver:
     <<: *airflow-common

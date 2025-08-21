@@ -12,7 +12,7 @@ from datetime import datetime
 def connect_redis():
     """Redis 연결"""
     try:
-        pool = redis.ConnectionPool(host='localhost', port=6379, db=0)
+        pool = redis.ConnectionPool(host='localhost', port=16379, db=0)
         r = redis.Redis(connection_pool=pool)
         r.ping()
         print("✅ Redis 연결 성공!")

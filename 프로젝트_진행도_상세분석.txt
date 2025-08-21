@@ -493,3 +493,8 @@ redis 데이터 저장 실시간 탐색 가능
 2025-08-20
 airflow dag 연동 완료
 airflow로 특정 시간에 맞춰서 redis 초기화
+
+2025-08-21
+xgboost 하이퍼파라미터 서치 구현
+redis 외부망 port 할당 문제 해결
+dag 파일에 모델 생성, 학습 구현 시작
