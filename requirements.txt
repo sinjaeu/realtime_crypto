@@ -17,6 +17,11 @@ confluent-kafka==2.2.0
 # Airflow 관련 (이미 Docker 이미지에 포함되어 있지만 참조용)
 apache-airflow==2.8.1
 
+# 머신러닝 라이브러리
+xgboost==2.0.3
+scikit-learn==1.3.0
+joblib==1.3.0
+
 # 유틸리티 및 기타
 python-dotenv==1.0.0
 schedule==1.2.0

@@ -2,7 +2,8 @@ version: '3.8'
 
 x-airflow-common:
   &airflow-common
-  image: apache/airflow:2.8.1
+  build: .
+  # image: apache/airflow:2.8.1
   environment:
     &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: ${AIRFLOW__CORE__EXECUTOR}
@@ -13,7 +14,6 @@ x-airflow-common:
     AIRFLOW__API__AUTH_BACKENDS: ${AIRFLOW__API__AUTH_BACKENDS}
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: ${AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK}
     AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW__WEBSERVER__SECRET_KEY}
-    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS}
   volumes:
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
@@ -197,7 +197,7 @@ services:
     image: python:3.9-slim
     volumes:
       - ./kafka_services/producers:/app/code
-      - ./requirements.txt:/app/requirements.txt
+      - ./kafka_services/requirements_kafka.txt:/app/requirements.txt
     command: >
       sh -c "
         pip install -r /app/requirements.txt &&
@@ -211,7 +211,7 @@ services:
     image: python:3.9-slim
     volumes:
       - ./kafka_services/consumers:/app/code
-      - ./requirements.txt:/app/requirements.txt
+      - ./kafka_services/requirements_kafka.txt:/app/requirements.txt
     command: >
       sh -c "
         pip install -r /app/requirements.txt &&
