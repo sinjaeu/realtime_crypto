@@ -1,5 +1,5 @@
 # ===============================
-# 환경 변수 및 보안 파일
+# 🔐 환경 변수 및 보안 파일
 # ===============================
 .env
 .env.local
@@ -10,36 +10,15 @@
 *.pem
 *.crt
 secrets/
+api_keys.txt
+credentials.json
+auth.json
+tokens.json
+*_api_key*
+*_secret*
 
 # ===============================
-# Airflow 관련 파일들
-# ===============================
-logs/
-airflow.db
-airflow.cfg
-webserver_config.py
-standalone_admin_password.txt
-airflow-webserver.pid
-airflow-scheduler.pid
-
-# ===============================
-# 데이터베이스 관련
-# ===============================
-*.db
-*.sqlite
-*.sqlite3
-postgresql_data/
-mysql_data/
-
-# ===============================
-# Docker 관련
-# ===============================
-docker-compose.override.yml
-.docker/
-volumes/
-
-# ===============================
-# Python 관련
+# 🐍 Python 관련
 # ===============================
 __pycache__/
 *.py[cod]
@@ -65,7 +44,7 @@ share/python-wheels/
 MANIFEST
 
 # ===============================
-# 가상환경
+# 🌐 가상환경
 # ===============================
 .venv/
 env/
@@ -77,7 +56,104 @@ venv.bak/
 conda-env/
 
 # ===============================
-# IDE 및 에디터 설정
+# ⚡ Airflow 관련
+# ===============================
+logs/
+airflow.db
+airflow.cfg
+webserver_config.py
+standalone_admin_password.txt
+airflow-webserver.pid
+airflow-scheduler.pid
+
+# ===============================
+# 🗄️ 데이터베이스 관련
+# ===============================
+*.db
+*.sqlite
+*.sqlite3
+postgresql_data/
+mysql_data/
+
+# ===============================
+# 🐳 Docker 관련
+# ===============================
+docker-compose.override.yml
+.docker/
+volumes/
+
+# ===============================
+# ⚛️ React/Node.js 관련 (Frontend)
+# ===============================
+frontend/node_modules/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.pnpm-debug.log*
+frontend/build/
+frontend/dist/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/.eslintcache
+frontend/.stylelintcache
+
+# ===============================
+# 🚀 FastAPI/Backend 관련
+# ===============================
+backend/__pycache__/
+backend/*.py[cod]
+backend/instance/
+backend/.webassets-cache
+backend/.coverage
+backend/htmlcov/
+backend/.pytest_cache/
+
+# ===============================
+# 📊 머신러닝 및 모델 파일
+# ===============================
+models/*.pkl
+models/*.joblib
+models/*.model
+models/*.h5
+models/*.hdf5
+*.pkl
+*.joblib
+*.model
+
+# 예외: 중요한 모델 파일은 유지 (필요시 주석 해제)
+!models/xgboost_best_model.pkl
+!models/label_encoder.pkl
+
+# ===============================
+# 📈 데이터 파일들
+# ===============================
+data/
+crypto_data/
+*.csv
+*.json
+!package.json
+!package-lock.json
+!frontend/package.json
+!frontend/package-lock.json
+*.parquet
+*.feather
+*.h5
+*.hdf5
+backups/
+
+# ===============================
+# 📝 로그 파일들
+# ===============================
+*.log
+*.log.*
+log/
+*.out
+*.err
+
+# ===============================
+# 🔧 IDE 및 에디터 설정
 # ===============================
 .vscode/
 .idea/
@@ -90,41 +166,17 @@ Thumbs.db
 *.temp
 
 # ===============================
-# 로그 파일들
-# ===============================
-*.log
-*.log.*
-log/
-logs/
-*.out
-*.err
-
-# ===============================
-# 암호화폐 데이터 파일들
-# ===============================
-data/
-crypto_data/
-*.csv
-*.json
-*.parquet
-*.pkl
-*.pickle
-backups/
-
-# ===============================
-# 임시 파일들
+# 📋 임시 파일들
 # ===============================
 tmp/
 temp/
 .tmp/
 .temp/
-*.tmp
-*.temp
 .cache/
 .pytest_cache/
 
 # ===============================
-# 설정 파일들 (민감한 정보 포함)
+# ⚙️ 설정 파일들 (민감한 정보 포함)
 # ===============================
 config.json
 config.yaml
@@ -134,17 +186,7 @@ local_settings.py
 production_settings.py
 
 # ===============================
-# API 키 및 인증 정보
-# ===============================
-api_keys.txt
-credentials.json
-auth.json
-tokens.json
-*_api_key*
-*_secret*
-
-# ===============================
-# 백업 파일들
+# 💾 백업 파일들
 # ===============================
 *.bak
 *.backup
@@ -153,7 +195,7 @@ tokens.json
 *.save
 
 # ===============================
-# 압축 파일들
+# 📦 압축 파일들
 # ===============================
 *.zip
 *.tar
@@ -163,7 +205,7 @@ tokens.json
 *.7z
 
 # ===============================
-# 모니터링 및 성능 파일들
+# 🧪 테스트 및 커버리지
 # ===============================
 .coverage
 htmlcov/
@@ -173,74 +215,158 @@ coverage.xml
 *.cover
 *.py,cover
 .hypothesis/
-.pytest_cache/
 cover/
 
 # ===============================
-# Jupyter Notebook
+# 📓 Jupyter Notebook
 # ===============================
 .ipynb_checkpoints
 *.ipynb
 
 # ===============================
-# 기타 프로젝트 파일들
-# ===============================
-.project
-.pydevproject
-.settings/
-.classpath
-.factorypath
-.buildpath
-.target
-.sts4-cache
-
-# ===============================
-# 문서화 관련
+# 📚 문서화 관련
 # ===============================
 docs/_build/
 site/
-프로젝트_구현_계획서.txt
 
 # ===============================
-# 테스트 관련
+# 🎯 Kafka 관련
 # ===============================
-.pytest_cache/
+kafka_services/.kafka_data/
+kafka_services/logs/
+
+# ===============================
+# 🔄 Redis 관련
+# ===============================
+redis_data/
+dump.rdb
+
+# ===============================
+# 📊 모니터링 및 성능
+# ===============================
 .coverage
 htmlcov/
 .tox/
 .nox/
+coverage.xml
+*.cover
+*.py,cover
 
 # ===============================
-# 특정 파일들
+# 🚀 배포 관련
 # ===============================
-# 실제 프로덕션 설정 파일들
 docker-compose.prod.yml
 kubernetes/
 k8s/
+.kubernetes/
 
-# 로컬 개발용 스크립트들
-run_local.sh
-debug.py
-test_*.py
-
-# 대용량 데이터 파일들
-*.parquet
-*.feather
-*.h5
-*.hdf5
-
-# 머신러닝 모델 파일들
-*.model
-*.pkl
-*.joblib
-models/
-
-# 실시간 데이터 캐시
-cache/
-redis_data/
-
-# 로그 분석 결과
+# ===============================
+# 🔍 분석 결과 파일들
+# ===============================
 analysis/
 reports/
 charts/
 plots/
+cache/
+
+# ===============================
+# 📱 모바일/하이브리드 앱 (향후 확장)
+# ===============================
+# React Native
+.expo/
+.expo-shared/
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.mobileprovision
+*.orig.*
+web-build/
+
+# ===============================
+# 🌟 프로젝트별 특수 파일들
+# ===============================
+
+# 개발 중 생성되는 임시 스크립트들
+run_local.sh
+debug.py
+test_local.py
+*_test.py
+*_debug.py
+
+# 심볼 데이터 (너무 클 경우)
+# 심볼.txt
+
+# 진행도 분석 파일 (루트에 있는 중복 파일)
+프로젝트_진행도_상세분석.txt
+
+# 대용량 로그 파일들
+logs/dag_id=*/
+logs/scheduler/*/
+
+# 실시간 데이터 캐시
+realtime_cache/
+price_cache/
+
+# ===============================
+# ✅ 예외 사항 (반드시 포함해야 할 파일들)
+# ===============================
+!.gitkeep
+!.gitignore
+!README.md
+!requirements.txt
+!kafka_services/requirements_kafka.txt
+!docker-compose.yaml
+!Dockerfile
+
+# 문서 폴더는 유지
+!문서/
+!문서/*
+
+# 설정 파일 템플릿은 유지
+!config/config.example.json
+!.env.example
+
+# 프론트엔드 필수 파일들
+!frontend/public/
+!frontend/src/
+!frontend/package.json
+!frontend/package-lock.json
+
+# 백엔드 필수 파일들
+!backend/main.py
+!backend/app/
+!backend/requirements.txt
+
+# ===============================
+# 🎨 에셋 파일들 (용량이 클 경우)
+# ===============================
+# *.png
+# *.jpg
+# *.jpeg
+# *.gif
+# *.svg
+# *.ico
+
+# ===============================
+# 🔮 향후 확장 고려사항
+# ===============================
+# GraphQL
+schema.graphql
+generated/
+
+# Terraform (인프라 관리)
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Ansible
+*.retry
+
+# 마이크로서비스별 로그
+services/*/logs/
+services/*/.env
+
+# ===============================
+# END OF GITIGNORE
+# ===============================
