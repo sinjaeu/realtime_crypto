@@ -233,6 +233,39 @@
   text-align: center;
 }
 
+.holding-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #e8f4f8;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.holding-label {
+  color: #495057;
+  font-weight: 500;
+}
+
+.holding-amount {
+  color: #2c3e50;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+}
+
+.no-holdings-warning {
+  background: #fff3cd;
+  color: #856404;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  text-align: center;
+  border: 1px solid #ffeaa7;
+}
+
 .quick-amounts {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

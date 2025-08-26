@@ -69,31 +69,7 @@ class TradingService:
                     detail=f"잔고 부족: 필요 금액 ${total_amount:.2f}, 보유 잔고 ${user.balance:.2f}"
                 )
             
-            # 포트폴리오 업데이트 또는 생성
-            portfolio = db.query(Portfolio).filter(
-                Portfolio.user_id == user.id,
-                Portfolio.symbol == symbol
-            ).first()
-            
-            if portfolio:
-                # 기존 포트폴리오 업데이트 (평균 매입가 계산)
-                total_quantity = portfolio.quantity + quantity
-                total_investment = portfolio.total_invested + total_cost
-                new_avg_price = total_investment / total_quantity if total_quantity > 0 else current_price
-                
-                portfolio.quantity = total_quantity
-                portfolio.avg_price = new_avg_price
-                portfolio.total_invested = total_investment
-            else:
-                # 새 포트폴리오 생성
-                portfolio = Portfolio(
-                    user_id=user.id,
-                    symbol=symbol,
-                    quantity=quantity,
-                    avg_price=current_price,
-                    total_invested=total_cost
-                )
-                db.add(portfolio)
+            # Portfolio 테이블 사용 안 함 - Transaction만 기록
             
             # 거래 내역 저장
             transaction = Transaction(
@@ -113,7 +89,6 @@ class TradingService:
             
             # 데이터베이스 커밋
             db.commit()
-            db.refresh(portfolio)
             db.refresh(transaction)
             db.refresh(user)
             
@@ -129,12 +104,6 @@ class TradingService:
                     "total_cost": total_cost,
                     "fee": fee,
                     "total_amount": total_amount
-                },
-                "portfolio": {
-                    "symbol": symbol,
-                    "quantity": portfolio.quantity,
-                    "avg_price": portfolio.avg_price,
-                    "total_invested": portfolio.total_invested
                 },
                 "new_balance": user.balance
             }
@@ -153,17 +122,25 @@ class TradingService:
                     db: Session) -> Dict[str, Any]:
         """암호화폐 매도"""
         try:
-            # 포트폴리오 확인
-            portfolio = db.query(Portfolio).filter(
-                Portfolio.user_id == user.id,
-                Portfolio.symbol == symbol
-            ).first()
+            # 거래 내역 기반으로 보유 수량 확인
+            transactions = db.query(Transaction).filter(
+                Transaction.user_id == user.id,
+                Transaction.symbol == symbol,
+                Transaction.status == "COMPLETED"
+            ).all()
             
-            if not portfolio or portfolio.quantity < quantity:
-                available_qty = portfolio.quantity if portfolio else 0
+            # 현재 보유 수량 계산
+            current_quantity = 0
+            for tx in transactions:
+                if tx.transaction_type == "BUY":
+                    current_quantity += tx.quantity
+                elif tx.transaction_type == "SELL":
+                    current_quantity -= tx.quantity
+            
+            if current_quantity < quantity:
                 raise HTTPException(
                     status_code=400, 
-                    detail=f"보유 수량 부족: 매도 요청 {quantity}개, 보유 수량 {available_qty}개"
+                    detail=f"보유 수량 부족: 매도 요청 {quantity}개, 보유 수량 {current_quantity}개"
                 )
             
             # 현재 가격 조회
@@ -173,16 +150,6 @@ class TradingService:
             total_revenue = quantity * current_price
             fee = self.calculate_fee(total_revenue)
             net_revenue = total_revenue - fee
-            
-            # 포트폴리오 업데이트
-            portfolio.quantity -= quantity
-            if portfolio.quantity == 0:
-                # 모든 수량을 매도한 경우 포트폴리오 삭제
-                db.delete(portfolio)
-            else:
-                # 일부 매도의 경우 투자금액 비례 감소
-                sold_ratio = quantity / (portfolio.quantity + quantity)
-                portfolio.total_invested *= (1 - sold_ratio)
             
             # 거래 내역 저장
             transaction = Transaction(
@@ -202,8 +169,6 @@ class TradingService:
             
             # 데이터베이스 커밋
             db.commit()
-            if portfolio.quantity > 0:
-                db.refresh(portfolio)
             db.refresh(transaction)
             db.refresh(user)
             
@@ -220,12 +185,6 @@ class TradingService:
                     "fee": fee,
                     "net_revenue": net_revenue
                 },
-                "portfolio": {
-                    "symbol": symbol,
-                    "quantity": portfolio.quantity if portfolio.quantity > 0 else 0,
-                    "avg_price": portfolio.avg_price if portfolio.quantity > 0 else 0,
-                    "total_invested": portfolio.total_invested if portfolio.quantity > 0 else 0
-                } if portfolio.quantity > 0 else None,
                 "new_balance": user.balance
             }
             
@@ -237,39 +196,94 @@ class TradingService:
             raise HTTPException(status_code=500, detail="매도 처리 실패")
     
     def get_user_portfolio(self, user: User, db: Session) -> Dict[str, Any]:
-        """사용자 포트폴리오 조회"""
+        """거래 내역 기반 사용자 포트폴리오 조회"""
         try:
-            portfolios = db.query(Portfolio).filter(Portfolio.user_id == user.id).all()
+            # 모든 거래 내역 조회
+            transactions = db.query(Transaction).filter(
+                Transaction.user_id == user.id,
+                Transaction.status == "COMPLETED"
+            ).order_by(Transaction.created_at.asc()).all()
             
+            # 심볼별 포지션 계산
+            positions = {}
+            
+            for tx in transactions:
+                symbol = tx.symbol
+                if symbol not in positions:
+                    positions[symbol] = {
+                        'quantity': 0,
+                        'total_cost': 0,  # 수수료 제외한 순수 매입 비용
+                        'total_fees': 0,  # 수수료만 따로 계산
+                        'total_sold': 0
+                    }
+                
+                if tx.transaction_type == "BUY":
+                    positions[symbol]['quantity'] += tx.quantity
+                    # tx.total_amount는 수수료 제외된 순수 거래 금액
+                    positions[symbol]['total_cost'] += tx.total_amount
+                    positions[symbol]['total_fees'] += tx.fee if tx.fee else 0
+                elif tx.transaction_type == "SELL":
+                    # 매도 시 FIFO 방식으로 평균 매입가 조정
+                    sold_quantity = tx.quantity
+                    original_quantity = positions[symbol]['quantity']
+                    positions[symbol]['quantity'] -= sold_quantity
+                    
+                    # 매도한 비율만큼 투자 비용 차감 (정밀도 개선)
+                    if original_quantity > 0:
+                        sold_ratio = sold_quantity / original_quantity
+                        # 매도 후 남은 비율만큼만 유지
+                        remaining_ratio = 1 - sold_ratio
+                        positions[symbol]['total_cost'] *= remaining_ratio
+                        positions[symbol]['total_fees'] *= remaining_ratio
+                        
+                        # 음수 방지
+                        if positions[symbol]['quantity'] < 0.00000001:  # 소수점 8자리 이하는 0으로 처리
+                            positions[symbol]['quantity'] = 0
+                            positions[symbol]['total_cost'] = 0
+                            positions[symbol]['total_fees'] = 0
+                    
+                    positions[symbol]['total_sold'] += tx.total_amount
+            
+            # 포트폴리오 데이터 생성
             portfolio_data = []
             total_value = 0
             total_invested = 0
             
-            for portfolio in portfolios:
-                try:
-                    current_price = self.get_current_price(portfolio.symbol)
-                    current_value = portfolio.quantity * current_price
-                    profit_loss = current_value - portfolio.total_invested
-                    profit_loss_pct = (profit_loss / portfolio.total_invested * 100) if portfolio.total_invested > 0 else 0
-                    
-                    portfolio_item = {
-                        "symbol": portfolio.symbol,
-                        "quantity": portfolio.quantity,
-                        "avg_price": portfolio.avg_price,
-                        "current_price": current_price,
-                        "total_invested": portfolio.total_invested,
-                        "current_value": current_value,
-                        "profit_loss": profit_loss,
-                        "profit_loss_pct": profit_loss_pct
-                    }
-                    portfolio_data.append(portfolio_item)
-                    
-                    total_value += current_value
-                    total_invested += portfolio.total_invested
-                    
-                except Exception as e:
-                    logging.warning(f"포트폴리오 {portfolio.symbol} 가격 조회 실패: {e}")
-                    continue
+            for symbol, position in positions.items():
+                if position['quantity'] > 0:  # 보유 수량이 있는 경우만
+                    try:
+                        current_price = self.get_current_price(symbol)
+                        current_value = position['quantity'] * current_price
+                        
+                        # 평균 매입가 계산 (수수료 제외한 순수 가격)
+                        if position['quantity'] > 0:
+                            avg_price = position['total_cost'] / position['quantity']
+                        else:
+                            avg_price = 0
+                        
+                        # 실제 투자 금액 (수수료 포함)
+                        invested_amount = position['total_cost'] + position['total_fees']
+                        profit_loss = current_value - invested_amount
+                        profit_loss_pct = (profit_loss / invested_amount * 100) if invested_amount > 0 else 0
+                        
+                        portfolio_item = {
+                            "symbol": symbol,
+                            "quantity": position['quantity'],
+                            "avg_price": avg_price,
+                            "current_price": current_price,
+                            "total_invested": invested_amount,
+                            "current_value": current_value,
+                            "profit_loss": profit_loss,
+                            "profit_loss_pct": profit_loss_pct
+                        }
+                        portfolio_data.append(portfolio_item)
+                        
+                        total_value += current_value
+                        total_invested += invested_amount
+                        
+                    except Exception as e:
+                        logging.warning(f"포트폴리오 {symbol} 가격 조회 실패: {e}")
+                        continue
             
             total_profit_loss = total_value - total_invested
             total_profit_loss_pct = (total_profit_loss / total_invested * 100) if total_invested > 0 else 0
@@ -281,7 +295,8 @@ class TradingService:
                 "total_profit_loss": total_profit_loss,
                 "total_profit_loss_pct": total_profit_loss_pct,
                 "total_assets": user.balance + total_value,
-                "portfolios": portfolio_data
+                "portfolios": portfolio_data,
+                "holding_count": len(portfolio_data)
             }
             
         except Exception as e:

@@ -22,7 +22,7 @@ class User(Base):
     username = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
-    balance = Column(Float, default=100000.0)  # 초기 가상 자금 10만 달러
+    balance = Column(Float, default=1000000.0)  # 초기 가상 자금 100만 달러
     created_at = Column(DateTime, default=datetime.utcnow)
     is_active = Column(Integer, default=1)  # SQLite는 Boolean 대신 Integer 사용
     

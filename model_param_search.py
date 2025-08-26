@@ -1,4 +1,5 @@
 # hyperparameter_tuning.py (로컬에서 실행)
+# pip install --upgrade pandas==2.0.3 numpy==1.25.2 scikit-learn==1.3.2 xgboost==2.0.3 실행
 import joblib
 from sklearn.calibration import LabelEncoder
 from xgboost import XGBRegressor
@@ -25,7 +26,7 @@ def data_read():
     return df
 
 def get_redis_data(r, symbol):
-    prices = r.lrange(symbol, -1000, -1)
+    prices = r.lrange(symbol, -750, -1)
     if prices:
         prices_str = [float(price.decode('utf-8')) for price in prices]
         return prices_str
@@ -103,14 +104,16 @@ def tune_hyperparameters(data):
     # 학습 및 최적 파라미터 저장
     gsc.fit(X_train, y_train)
     
-    # 최적 모델 저장
+    # 최적 모델과 라벨 인코더 저장 (backend/models/ 경로에 저장)
     best_model = gsc.best_estimator_
     test_score = best_model.score(X_test, y_test)
-    joblib.dump(best_model, 'models/xgboost_best_model.pkl')
+    joblib.dump(best_model, 'backend/models/xgboost_best_model.pkl')
+    joblib.dump(le, 'backend/models/label_encoder.pkl')  # 라벨 인코더도 저장
     
     print(f"최적 파라미터: {gsc.best_params_}")
     print(f"최적 점수: {gsc.best_score_}")
     print(f'테스트 점수 : {test_score}')
+    print("✅ 모델과 라벨 인코더 저장 완료!")
 
 df_long = data_read()
 print(df_long.shape)  # (75300, 2) - 251개 코인 × 300개 시점

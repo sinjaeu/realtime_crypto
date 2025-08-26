@@ -82,10 +82,34 @@ const Settings = () => {
     }
   };
 
-  const handleResetBalance = () => {
-    if (window.confirm('잔고를 초기값($100,000)으로 재설정하시겠습니까?')) {
-      updateUserBalance(100000);
-      showMessage('success', '잔고가 재설정되었습니다.');
+  const handleResetBalance = async () => {
+    if (window.confirm('잔고를 초기값($1,000,000)으로 재설정하시겠습니까?\n\n⚠️ 모든 거래 내역과 포트폴리오가 삭제됩니다.')) {
+      setLoading(true);
+      
+      try {
+        const response = await axios.post('http://localhost:8000/api/auth/reset-balance', {}, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.data.success) {
+          // AuthContext의 사용자 잔고 업데이트
+          updateUserBalance(response.data.new_balance);
+          showMessage('success', '잔고와 포트폴리오가 초기화되었습니다.');
+          
+          // 포트폴리오 페이지에 업데이트 알림
+          window.dispatchEvent(new CustomEvent('portfolioUpdated'));
+        } else {
+          showMessage('error', '초기화에 실패했습니다.');
+        }
+      } catch (error) {
+        console.error('잔고 초기화 오류:', error);
+        showMessage('error', '초기화 중 오류가 발생했습니다.');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -204,7 +228,7 @@ const Settings = () => {
           className="settings-button reset-button"
           onClick={handleResetBalance}
         >
-          💰 잔고 재설정
+          💰 잔고 재설정 ($1,000,000)
         </button>
 
         <button 

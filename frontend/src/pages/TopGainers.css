@@ -1,0 +1,556 @@
+.top-gainers {
+  padding: 2rem;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.top-gainers-header {
+  margin-bottom: 2rem;
+}
+
+.top-gainers-header h1 {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.top-gainers-header p {
+  margin: 0 0 1.5rem 0;
+  color: #6c757d;
+  font-size: 1rem;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.control-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.limit-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.limit-selector label {
+  color: #495057;
+  font-weight: 600;
+}
+
+.limit-selector select {
+  padding: 0.5rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  background: white;
+  color: #495057;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.limit-selector select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input {
+  padding: 0.5rem 2.5rem 0.5rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  background: white;
+  color: #495057;
+  font-size: 0.9rem;
+  width: 200px;
+  transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.search-input::placeholder {
+  color: #adb5bd;
+}
+
+.search-icon {
+  position: absolute;
+  right: 0.75rem;
+  color: #6c757d;
+  pointer-events: none;
+}
+
+.last-updated {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.top-gainers-content {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+  max-width: 1400px;
+}
+
+/* 좌측: 코인 순위 리스트 */
+.gainers-list {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  height: fit-content;
+}
+
+.list-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.list-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.gainers-table {
+  overflow: hidden;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 60px 1fr 100px 100px;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 100px 100px;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #f1f3f4;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  align-items: center;
+}
+
+.table-row:hover {
+  background: #f8f9fa;
+}
+
+.table-row.selected {
+  background: #e3f2fd;
+  border-left: 4px solid #667eea;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+/* 검색 결과 없음 */
+.no-results {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  text-align: center;
+}
+
+.no-results-content {
+  color: #6c757d;
+}
+
+.no-results-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.no-results-content p {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+}
+
+/* 상승 코인 없음 */
+.no-gainers {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  padding: 3rem;
+}
+
+.no-gainers-content {
+  text-align: center;
+  color: #6c757d;
+}
+
+.no-gainers-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.6;
+}
+
+.no-gainers-content h3 {
+  color: #495057;
+  margin: 1rem 0;
+  font-size: 1.25rem;
+}
+
+.no-gainers-content p {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.rank-number {
+  font-weight: 700;
+  color: #667eea;
+  font-size: 1.1rem;
+}
+
+.symbol-name {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+.price-value {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.change-value {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.positive .change-value {
+  color: #28a745;
+}
+
+.negative .change-value {
+  color: #dc3545;
+}
+
+.neutral .change-value {
+  color: #6c757d;
+}
+
+/* 우측: 차트 섹션 */
+.chart-section {
+  background: white;
+  border-radius: 16px;
+  padding: 0;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.chart-header {
+  padding: 2rem;
+  border-bottom: 1px solid #f1f3f4;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
+
+.coin-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.coin-info h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.price-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.current-price {
+  font-family: 'Courier New', monospace;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.price-change {
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+}
+
+.price-change.positive {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+}
+
+.price-change.negative {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.chart-stats {
+  display: flex;
+  gap: 2rem;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.stat-value.positive {
+  color: #28a745;
+}
+
+.stat-value.negative {
+  color: #dc3545;
+}
+
+/* 거래 액션 버튼 */
+.trade-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.trade-button {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.buy-button {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  box-shadow: 0 2px 10px rgba(40, 167, 69, 0.3);
+}
+
+.buy-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+}
+
+.sell-button {
+  background: linear-gradient(135deg, #ffc107, #fd7e14);
+  color: white;
+  box-shadow: 0 2px 10px rgba(255, 193, 7, 0.3);
+}
+
+.sell-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+}
+
+.trade-button:active {
+  transform: translateY(0);
+}
+
+.chart-container {
+  padding: 2rem;
+  background: white;
+}
+
+.price-chart-container {
+  position: relative;
+  width: 100%;
+}
+
+/* 차트 플레이스홀더 */
+.chart-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 500px;
+  background: #f8f9fa;
+}
+
+.placeholder-content {
+  text-align: center;
+}
+
+.placeholder-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.placeholder-content h3 {
+  color: #495057;
+  margin-bottom: 1rem;
+}
+
+.placeholder-content p {
+  color: #6c757d;
+  line-height: 1.6;
+}
+
+/* 차트 로딩 */
+.chart-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #6c757d;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 로딩 컨테이너 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: #6c757d;
+}
+
+/* 에러 컨테이너 */
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+.retry-button {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.retry-button:hover {
+  background: #5a67d8;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .top-gainers-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .controls {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 768px) {
+  .top-gainers {
+    padding: 1rem;
+  }
+  
+  .table-header,
+  .table-row {
+    grid-template-columns: 50px 1fr 80px 80px;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    font-size: 0.85rem;
+  }
+  
+  .chart-header {
+    padding: 1.5rem;
+  }
+  
+  .coin-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .chart-container {
+    padding: 1rem;
+  }
+}

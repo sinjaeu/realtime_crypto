@@ -8,10 +8,12 @@ import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import Trading from './pages/Trading';
 import Portfolio from './pages/Portfolio';
+import AIAssistant from './pages/AIAssistant';
 import History from './pages/History';
+import TopGainers from './pages/TopGainers';
 
-// 임시 페이지 컴포넌트들
-const AIAssistant = () => <div className="page-content"><h1>🤖 AI 어시스턴트</h1><p>투자 조언 및 채팅이 여기에 구현됩니다.</p></div>;
+// LiveTracker 임시 컴포넌트
+const LiveTracker = () => <div className="page-content"><h1>📊 실시간 추적</h1><p>실시간 가격 추적 기능이 여기에 구현됩니다.</p></div>;
 
 // 로딩 컴포넌트
 const LoadingScreen = () => (
@@ -27,6 +29,53 @@ const LoadingScreen = () => (
 const MainApp = () => {
   const { isAuthenticated, loading, login } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [tradingParams, setTradingParams] = useState({ symbol: null, tradeType: null });
+
+  // 커스텀 이벤트 리스너들
+  React.useEffect(() => {
+    const handleNavigateToTrading = (event) => {
+      setActiveTab('trading');
+      // 선택된 코인과 거래 타입 정보 저장
+      if (event.detail) {
+        setTradingParams({
+          symbol: event.detail.symbol,
+          tradeType: event.detail.tradeType
+        });
+      } else {
+        setTradingParams({ symbol: null, tradeType: null });
+      }
+    };
+    
+    const handleNavigateToTopGainers = () => {
+      setActiveTab('top-gainers');
+    };
+    
+    const handleNavigateToLiveTracker = () => {
+      setActiveTab('live-tracker');
+    };
+    
+      const handleNavigateToPortfolio = () => {
+    setActiveTab('portfolio');
+  };
+
+  const handleNavigateToAI = () => {
+    setActiveTab('ai-assistant');
+  };
+
+    window.addEventListener('navigateToTrading', handleNavigateToTrading);
+    window.addEventListener('navigateToTopGainers', handleNavigateToTopGainers);
+    window.addEventListener('navigateToLiveTracker', handleNavigateToLiveTracker);
+    window.addEventListener('navigateToPortfolio', handleNavigateToPortfolio);
+    window.addEventListener('navigateToAI', handleNavigateToAI);
+    
+    return () => {
+      window.removeEventListener('navigateToTrading', handleNavigateToTrading);
+      window.removeEventListener('navigateToTopGainers', handleNavigateToTopGainers);
+      window.removeEventListener('navigateToLiveTracker', handleNavigateToLiveTracker);
+      window.removeEventListener('navigateToPortfolio', handleNavigateToPortfolio);
+      window.removeEventListener('navigateToAI', handleNavigateToAI);
+    };
+  }, []);
 
   // 로딩 중일 때
   if (loading) {
@@ -44,15 +93,19 @@ const MainApp = () => {
       case 'dashboard':
         return <Dashboard />;
       case 'trading':
-        return <Trading />;
+        return <Trading selectedSymbol={tradingParams.symbol} tradeType={tradingParams.tradeType} />;
       case 'portfolio':
         return <Portfolio />;
       case 'ai-assistant':
         return <AIAssistant />;
       case 'history':
         return <History />;
-      case 'settings':
-        return <Settings />;
+              case 'top-gainers':
+          return <TopGainers />;
+        case 'live-tracker':
+          return <TopGainers />; // 실시간 추적 → 상승률 TOP으로 연결
+        case 'settings':
+          return <Settings />;
       default:
         return <Dashboard />;
     }

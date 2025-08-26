@@ -33,15 +33,19 @@ const Portfolio = () => {
 
       console.log('포트폴리오 데이터:', response.data);
       
+      // 백엔드 응답 구조 확인
+      const responseData = response.data.success ? response.data.data : response.data;
+      
       // 포트폴리오 데이터 구조 확인 및 기본값 설정
       const portfolioData = {
-        balance: response.data.balance || 0,
-        total_invested: response.data.total_invested || 0,
-        total_value: response.data.total_value || 0,
-        total_profit_loss: response.data.total_profit_loss || 0,
-        total_profit_loss_pct: response.data.total_profit_loss_pct || 0,
-        total_assets: response.data.total_assets || response.data.balance || 0,
-        portfolios: response.data.portfolios || []
+        balance: responseData.balance || 0,
+        total_invested: responseData.total_invested || 0,
+        total_value: responseData.total_value || 0,
+        total_profit_loss: responseData.total_profit_loss || 0,
+        total_profit_loss_pct: responseData.total_profit_loss_pct || 0,
+        total_assets: responseData.total_assets || responseData.balance || 0,
+        portfolios: responseData.portfolios || [],
+        holding_count: responseData.holding_count || 0
       };
       
       setPortfolioData(portfolioData);
@@ -69,7 +73,18 @@ const Portfolio = () => {
     fetchPortfolioData();
     // 30초마다 업데이트
     const interval = setInterval(fetchPortfolioData, 30000);
-    return () => clearInterval(interval);
+    
+    // 포트폴리오 업데이트 이벤트 리스너
+    const handlePortfolioUpdate = () => {
+      fetchPortfolioData();
+    };
+    
+    window.addEventListener('portfolioUpdated', handlePortfolioUpdate);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('portfolioUpdated', handlePortfolioUpdate);
+    };
   }, []);
 
   // 수익률 색상 결정
@@ -131,27 +146,8 @@ const Portfolio = () => {
     );
   }
 
-  if (!portfolioData || portfolioData.portfolios.length === 0) {
-    return (
-      <div className="portfolio">
-        <div className="portfolio-header">
-          <h1>💼 포트폴리오</h1>
-          <p>보유 중인 암호화폐 현황을 확인하세요</p>
-        </div>
-        <div className="empty-portfolio">
-          <div className="empty-icon">📊</div>
-          <h3>보유 중인 암호화폐가 없습니다</h3>
-          <p>거래 페이지에서 첫 번째 투자를 시작해보세요!</p>
-          <button 
-            className="start-trading-button"
-            onClick={() => window.location.href = '#trading'}
-          >
-            거래 시작하기
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // 보유 암호화폐가 없어도 포트폴리오 정보는 표시
+  const hasHoldings = portfolioData && portfolioData.portfolios && portfolioData.portfolios.length > 0;
 
   const distribution = getPortfolioDistribution();
 
@@ -199,71 +195,113 @@ const Portfolio = () => {
 
       {/* 포트폴리오 분포 */}
       <div className="portfolio-content">
-        <div className="portfolio-distribution">
-          <h3>📊 포트폴리오 분포</h3>
-          <div className="distribution-list">
-            {distribution.map(item => (
-              <div key={item.symbol} className="distribution-item">
-                <div className="distribution-info">
-                  <span className="distribution-symbol">{item.symbol}</span>
-                  <span className="distribution-percentage">{item.percentage}%</span>
-                </div>
-                <div className="distribution-bar">
-                  <div 
-                    className="distribution-fill"
-                    style={{ width: `${item.percentage}%` }}
-                  ></div>
-                </div>
-                <div className="distribution-value">
-                  ${item.value?.toLocaleString()}
-                </div>
+        {hasHoldings ? (
+          <>
+            <div className="portfolio-distribution">
+              <h3>📊 포트폴리오 분포</h3>
+              <div className="distribution-list">
+                {distribution.map(item => (
+                  <div key={item.symbol} className="distribution-item">
+                    <div className="distribution-info">
+                      <span className="distribution-symbol">{item.symbol}</span>
+                      <span className="distribution-percentage">{item.percentage}%</span>
+                    </div>
+                    <div className="distribution-bar">
+                      <div 
+                        className="distribution-fill"
+                        style={{ width: `${item.percentage}%` }}
+                      ></div>
+                    </div>
+                    <div className="distribution-value">
+                      ${item.value?.toLocaleString()}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 보유 코인 상세 */}
-        <div className="portfolio-details">
-          <h3>💰 보유 코인 상세</h3>
-          <div className="portfolio-table">
-            <div className="table-header">
-              <div className="col-symbol">코인</div>
-              <div className="col-quantity">보유량</div>
-              <div className="col-avg-price">평균단가</div>
-              <div className="col-current-price">현재가</div>
-              <div className="col-value">평가금액</div>
-              <div className="col-profit">수익/손실</div>
             </div>
 
-            {portfolioData.portfolios.map(coin => (
-              <div key={coin.symbol} className="table-row">
-                <div className="col-symbol">
-                  <span className="coin-symbol">{coin.symbol}</span>
+            {/* 보유 코인 상세 */}
+            <div className="portfolio-details">
+              <h3>💰 보유 코인 상세</h3>
+              <div className="portfolio-table">
+                <div className="table-header">
+                  <div className="col-symbol">코인</div>
+                  <div className="col-quantity">보유량</div>
+                  <div className="col-avg-price">평균단가</div>
+                  <div className="col-current-price">현재가</div>
+                  <div className="col-value">평가금액</div>
+                  <div className="col-profit">수익/손실</div>
                 </div>
-                <div className="col-quantity">
-                  {coin.quantity?.toFixed(8)}
-                </div>
-                <div className="col-avg-price">
-                  ${coin.avg_price?.toFixed(4)}
-                </div>
-                <div className="col-current-price">
-                  ${coin.current_price?.toFixed(4)}
-                </div>
-                <div className="col-value">
-                  ${coin.current_value?.toLocaleString()}
-                </div>
-                <div className={`col-profit ${getProfitColor(coin.profit_loss)}`}>
-                  <div className="profit-amount">
-                    {coin.profit_loss >= 0 ? '+' : ''}${coin.profit_loss?.toLocaleString()}
+
+                {portfolioData.portfolios.map(coin => (
+                  <div key={coin.symbol} className="table-row">
+                    <div className="col-symbol">
+                      <span className="coin-symbol">{coin.symbol}</span>
+                    </div>
+                    <div className="col-quantity">
+                      {coin.quantity?.toFixed(8)}
+                    </div>
+                    <div className="col-avg-price">
+                      ${coin.avg_price?.toFixed(4)}
+                    </div>
+                    <div className="col-current-price">
+                      ${coin.current_price?.toFixed(4)}
+                    </div>
+                    <div className="col-value">
+                      ${coin.current_value?.toLocaleString()}
+                    </div>
+                    <div className={`col-profit ${getProfitColor(coin.profit_loss)}`}>
+                      <div className="profit-amount">
+                        {coin.profit_loss >= 0 ? '+' : ''}${coin.profit_loss?.toLocaleString()}
+                      </div>
+                      <div className="profit-percentage">
+                        ({coin.profit_loss_pct >= 0 ? '+' : ''}{coin.profit_loss_pct?.toFixed(2)}%)
+                      </div>
+                    </div>
                   </div>
-                  <div className="profit-percentage">
-                    ({coin.profit_loss_pct >= 0 ? '+' : ''}{coin.profit_loss_pct?.toFixed(2)}%)
+                ))}
+              </div>
+            </div>
+          </>
+        ) : (
+          /* 보유 암호화폐가 없을 때 */
+          <div className="empty-holdings">
+            <div className="empty-holdings-content">
+              <div className="empty-icon">📊</div>
+              <h3>보유 중인 암호화폐가 없습니다</h3>
+              <p>거래를 시작하여 포트폴리오를 구성해보세요!</p>
+              
+              <div className="empty-actions">
+                <button 
+                  className="start-trading-button"
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent('navigateToTrading'));
+                  }}
+                >
+                  🚀 거래 시작하기
+                </button>
+              </div>
+
+              <div className="getting-started-tips">
+                <h4>💡 투자 시작 가이드</h4>
+                <div className="tips-list">
+                  <div className="tip-item">
+                    <span className="tip-number">1</span>
+                    <span className="tip-text">거래 페이지에서 원하는 암호화폐 선택</span>
+                  </div>
+                  <div className="tip-item">
+                    <span className="tip-number">2</span>
+                    <span className="tip-text">매수 수량과 가격 확인 후 주문</span>
+                  </div>
+                  <div className="tip-item">
+                    <span className="tip-number">3</span>
+                    <span className="tip-text">포트폴리오에서 수익률 추적</span>
                   </div>
                 </div>
               </div>
-            ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

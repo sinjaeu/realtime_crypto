@@ -1,6 +1,6 @@
 # 기본 데이터 처리 라이브러리
-pandas==1.5.3
-numpy==1.24.3
+pandas==2.0.3
+numpy==1.25.2
 requests==2.31.0
 
 # 데이터베이스 연결 (Airflow 2.8.1 호환)

@@ -3,19 +3,30 @@ import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import './Trading.css';
 
-const Trading = () => {
+const Trading = ({ selectedSymbol: propSelectedSymbol, tradeType: propTradeType }) => {
   const { user, updateUserBalance } = useAuth();
-  const [selectedSymbol, setSelectedSymbol] = useState('BTCUSDC');
-  const [tradeType, setTradeType] = useState('BUY');
+  const [selectedSymbol, setSelectedSymbol] = useState(propSelectedSymbol || 'BTCUSDC');
+  const [tradeType, setTradeType] = useState(propTradeType || 'BUY');
   const [quantity, setQuantity] = useState('');
   const [marketData, setMarketData] = useState([]);
   const [filteredMarketData, setFilteredMarketData] = useState([]);
+  const [portfolioData, setPortfolioData] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [symbolSearchQuery, setSymbolSearchQuery] = useState('');
   const [showSymbolDropdown, setShowSymbolDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [currentPrice, setCurrentPrice] = useState(111077.01); // BTCUSDC 기본값
+
+  // props가 변경될 때 state 업데이트
+  useEffect(() => {
+    if (propSelectedSymbol) {
+      setSelectedSymbol(propSelectedSymbol);
+    }
+    if (propTradeType) {
+      setTradeType(propTradeType.toUpperCase());
+    }
+  }, [propSelectedSymbol, propTradeType]);
   
   // 거래 계산 상태
   const [totalAmount, setTotalAmount] = useState(0);
@@ -27,6 +38,14 @@ const Trading = () => {
     setTimeout(() => setMessage({ type: '', text: '' }), 5000);
   };
 
+  // 특정 심볼의 보유 수량 조회
+  const getHoldingQuantity = (symbol) => {
+    if (!portfolioData || !portfolioData.portfolios) return 0;
+    
+    const holding = portfolioData.portfolios.find(p => p.symbol === symbol);
+    return holding ? holding.quantity : 0;
+  };
+
   // 검색 필터링 함수
   const filterMarketData = (data, query) => {
     if (!query) return data;
@@ -35,6 +54,29 @@ const Trading = () => {
     return data.filter(coin => 
       coin.symbol.toLowerCase().includes(searchTerm)
     );
+  };
+
+  // 포트폴리오 데이터 가져오기
+  const fetchPortfolioData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const response = await axios.get('http://localhost:8000/api/portfolio', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 10000
+      });
+
+      if (response.data.success) {
+        setPortfolioData(response.data.data);
+      }
+    } catch (error) {
+      console.error('포트폴리오 데이터 조회 실패:', error);
+      setPortfolioData(null);
+    }
   };
 
   // 마켓 데이터 가져오기
@@ -111,6 +153,19 @@ const Trading = () => {
       return;
     }
 
+    // 매도 시 보유 수량 검증
+    if (tradeType === 'SELL') {
+      const holdingQty = getHoldingQuantity(selectedSymbol);
+      if (holdingQty === 0) {
+        showMessage('error', `${selectedSymbol}을 보유하고 있지 않습니다.`);
+        return;
+      }
+      if (parseFloat(quantity) > holdingQty) {
+        showMessage('error', `보유 수량(${holdingQty.toFixed(8)})을 초과할 수 없습니다.`);
+        return;
+      }
+    }
+
     if (tradeType === 'BUY' && finalAmount > user.balance) {
       showMessage('error', '잔고가 부족합니다.');
       return;
@@ -143,6 +198,12 @@ const Trading = () => {
         updateUserBalance(response.data.new_balance);
         setQuantity('');
         calculateTrade();
+        
+        // 포트폴리오 데이터 즉시 새로고침
+        await fetchPortfolioData();
+        
+        // 다른 컴포넌트들에게 포트폴리오 업데이트 알림
+        window.dispatchEvent(new CustomEvent('portfolioUpdated'));
       }
     } catch (error) {
       console.error('거래 실행 실패:', error);
@@ -202,7 +263,11 @@ const Trading = () => {
 
   useEffect(() => {
     fetchMarketData();
-    const interval = setInterval(fetchMarketData, 5000); // 5초마다 업데이트
+    fetchPortfolioData();
+    const interval = setInterval(() => {
+      fetchMarketData();
+      fetchPortfolioData();
+    }, 5000); // 5초마다 업데이트
     return () => clearInterval(interval);
   }, []);
 
@@ -319,13 +384,28 @@ const Trading = () => {
 
             <div className="form-group">
               <label>수량</label>
+              
+              {/* 매도 시 보유 수량 표시 */}
+              {tradeType === 'SELL' && (
+                <div className="holding-info">
+                  <span className="holding-label">보유 수량:</span>
+                  <span className="holding-amount">
+                    {getHoldingQuantity(selectedSymbol).toFixed(8)} {selectedSymbol.replace('USDC', '')}
+                  </span>
+                </div>
+              )}
+              
               <input
                 type="number"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
-                placeholder="거래할 수량을 입력하세요"
+                placeholder={tradeType === 'SELL' ? 
+                  `매도할 수량 (최대: ${getHoldingQuantity(selectedSymbol).toFixed(8)})` : 
+                  "거래할 수량을 입력하세요"
+                }
                 step="0.00000001"
                 min="0"
+                max={tradeType === 'SELL' ? getHoldingQuantity(selectedSymbol) : undefined}
               />
               
               {tradeType === 'BUY' && (
@@ -334,6 +414,21 @@ const Trading = () => {
                   <button onClick={() => setQuickQuantity(50)}>50%</button>
                   <button onClick={() => setQuickQuantity(75)}>75%</button>
                   <button onClick={() => setQuickQuantity(100)}>100%</button>
+                </div>
+              )}
+              
+              {tradeType === 'SELL' && getHoldingQuantity(selectedSymbol) > 0 && (
+                <div className="quick-amounts">
+                  <button onClick={() => setQuantity((getHoldingQuantity(selectedSymbol) * 0.25).toFixed(8))}>25%</button>
+                  <button onClick={() => setQuantity((getHoldingQuantity(selectedSymbol) * 0.5).toFixed(8))}>50%</button>
+                  <button onClick={() => setQuantity((getHoldingQuantity(selectedSymbol) * 0.75).toFixed(8))}>75%</button>
+                  <button onClick={() => setQuantity(getHoldingQuantity(selectedSymbol).toFixed(8))}>전량</button>
+                </div>
+              )}
+              
+              {tradeType === 'SELL' && getHoldingQuantity(selectedSymbol) === 0 && (
+                <div className="no-holdings-warning">
+                  ⚠️ 해당 코인을 보유하고 있지 않습니다.
                 </div>
               )}
             </div>
@@ -363,7 +458,15 @@ const Trading = () => {
             <button 
               className={`trade-button ${tradeType.toLowerCase()}`}
               onClick={executeTrade}
-              disabled={loading || !quantity || parseFloat(quantity) <= 0}
+              disabled={
+                loading || 
+                !quantity || 
+                parseFloat(quantity) <= 0 || 
+                (tradeType === 'SELL' && (
+                  getHoldingQuantity(selectedSymbol) === 0 || 
+                  parseFloat(quantity) > getHoldingQuantity(selectedSymbol)
+                ))
+              }
             >
               {loading ? '처리 중...' : `${tradeType === 'BUY' ? '매수' : '매도'} 주문`}
             </button>

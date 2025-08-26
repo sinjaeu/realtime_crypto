@@ -6,6 +6,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
     { id: 'dashboard', icon: '📊', label: '대시보드', description: '시장 현황' },
     { id: 'trading', icon: '💹', label: '거래', description: '매수/매도' },
     { id: 'portfolio', icon: '💼', label: '포트폴리오', description: '보유 현황' },
+    { id: 'top-gainers', icon: '🚀', label: '상승률 TOP', description: '인기 코인' },
     { id: 'ai-assistant', icon: '🤖', label: 'AI 어시스턴트', description: '투자 조언' },
     { id: 'history', icon: '📈', label: '거래 내역', description: '과거 거래' },
     { id: 'settings', icon: '⚙️', label: '설정', description: '계정 설정' },

@@ -32,7 +32,7 @@ dag = DAG(
     'crypto_batch_processing',
     default_args=default_args,
     description='Crypto Data Batch Processing and ML Training DAG',
-    schedule_interval='0 0 * * *',  # 매일 자정 실행
+    schedule_interval='0 */6 * * *',  # 6시간마다 실행 (0시, 6시, 12시, 18시)
     catchup=False,  # 과거 실행 건너뛰기
     max_active_runs=1,  # 동시 실행 방지
     tags=['crypto', 'ml', 'xgboost'],
@@ -77,11 +77,17 @@ def _data_save():
     )
     cur = conn.cursor()
 
+def safe_decode(value):
+    """Redis 값을 안전하게 디코딩"""
+    if isinstance(value, bytes):
+        return value.decode('utf-8')
+    return value
+
 def _get_redis_data(r, symbol):
     """Redis에서 시계열 데이터 가져오기 (전체 데이터)"""
     prices = r.lrange(symbol, 0, -1)  # 전체 데이터 (처음부터 끝까지)
     if prices:
-        prices_str = [float(price.decode('utf-8')) for price in prices]
+        prices_str = [float(safe_decode(price)) for price in prices]
         return prices_str
     return []
 
@@ -95,7 +101,7 @@ def _data_read():
         print("✅ Redis 연결 성공")
         
         price_keys = r.keys('price_history:*')
-        price_keys = [key.decode('utf-8') for key in price_keys]
+        price_keys = [safe_decode(key) for key in price_keys]
         print(f"📊 총 {len(price_keys)}개 코인 데이터 발견")
         
         all_data = []
@@ -151,8 +157,8 @@ def _create_ml_features(df_long):
 def _model_train():
     """최적 파라미터로 XGBoost 모델 학습"""
     
-    # 모델 파일 경로
-    model_dir = 'models'
+    # 모델 파일 경로 (backend/models로 변경)
+    model_dir = '/app/backend/models'
     model_file = f'{model_dir}/xgboost_best_model.pkl'
     
     try:
