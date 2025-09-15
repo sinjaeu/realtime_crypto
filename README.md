@@ -290,8 +290,13 @@ docker-compose logs -f crypto-producer
 ## 📚 추가 문서
 
 - [프로젝트 구조 설계](문서/프로젝트_구조_설계.md)
-- [API 명세서](http://localhost:8000/docs)
-- [Airflow DAG 문서](http://localhost:8080)
+- [프로젝트 진행도 분석](문서/프로젝트_진행도_상세분석.txt)
+- [프로젝트 구현 계획서](문서/프로젝트_구현_계획서.txt)
+
+### 🔗 실행 시 접근 가능한 문서
+- **API 명세서**: http://localhost:8000/docs (서버 실행 후)
+- **Airflow 웹 UI**: http://localhost:8080 (airflow/airflow)
+- **Kafka UI**: http://localhost:8081
 
 ## 🤝 기여하기
 
